@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>GS Cloud Storage Plans</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #0e0e0e; color: white; padding: 2rem; }
+    .container { max-width: 600px; margin: auto; }
+    h1 { text-align: center; font-size: 2em; margin-bottom: 1rem; }
+    .plan { background: #1e1e1e; padding: 1.5rem; border-radius: 10px; margin: 1rem 0; text-align: center; }
+    button { background: #00d084; color: white; border: none; padding: 1rem 2rem; font-size: 1em; border-radius: 5px; cursor: pointer; }
+    button:hover { background: #00a86b; }
+    #uploadForm { display: none; margin-top: 2rem; background: #1e1e1e; padding: 1rem; border-radius: 10px; }
+    input[type="file"] { margin-top: 1rem; }
+  </style>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>🚀 GS Cloud Storage</h1>
+    <p style="text-align:center;">Choose a storage plan and get started instantly — powered by GS Cloud backend.</p>
+
+    <div class="plan">
+      <h2>💼 Pro Plan - 10GB</h2>
+      <p>₦5,000 one-time</p>
+      <button onclick="payWithPaystack('pro', 500000)">Buy Pro Plan</button>
+    </div>
+
+    <div class="plan">
+      <h2>🚀 Ultra Plan - 100GB</h2>
+      <p>₦15,000 one-time</p>
+      <button onclick="payWithPaystack('ultra', 1500000)">Buy Ultra Plan</button>
+    </div>
+
+    <div id="uploadForm">
+      <h2>📤 Upload to GS Cloud</h2>
+      <form id="form">
+        <input type="file" name="file" id="fileInput" />
+        <button type="submit">Upload File</button>
+      </form>
+      <p id="uploadStatus"></p>
+    </div>
+  </div>
+
+  <script>
+    function payWithPaystack(plan, amount) {
+      let handler = PaystackPop.setup({
+        key: 'pk_test_aada79f897629222d7b87eb9f01ac0d9674eda1d',
+        email: 'inofomohabdulshakur7@gmail.com',
+        amount: amount,
+        currency: 'NGN',
+        ref: plan + '-' + Math.floor(Math.random() * 1000000000),
+        callback: function(response) {
+          alert('✅ Payment successful! You can now upload files to GS Cloud.');
+          document.getElementById('uploadForm').style.display = 'block';
+        },
+        onClose: function() {
+          alert('Payment window closed.');
+        }
+      });
+      handler.openIframe();
+    }
+
+    document.getElementById("form").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById("fileInput");
+      if (!fileInput.files.length) return alert("Please select a file");
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      document.getElementById("uploadStatus").innerText = "Uploading...";
+
+      try {
+        const res = await fetch("https://gs-cloud-api.onrender.com/upload", {
+          method: "POST",
+          body: formData
+        });
+        const result = await res.text();
+        document.getElementById("uploadStatus").innerText = "✅ Upload successful!";
+      } catch (err) {
+        document.getElementById("uploadStatus").innerText = "❌ Upload failed. Try again.";
+      }
+    });
+  </script>
+</body>
+</html>
